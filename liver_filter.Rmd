@@ -1,0 +1,61 @@
+---
+title: "liver_filter"
+output: html_document
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+# set wd to root
+load('./shinyapp/plot_data.rdata')
+lihc_clinical_data <- read_tsv('./shinyapp/lihc_tcga_pan_can_atlas_2018_clinical_data.tsv')
+```
+
+```{r}
+head(lihc_clinical_data) # we just want sample id
+```
+
+```{r}
+sample_ids <- lihc_clinical_data$`Sample ID`
+```
+
+Add row indices as a column for filter
+
+```{r}
+tcga_plot$sample <- row.names(tcga_plot)
+```
+
+```{r}
+filtered_lihc_tcga <- tcga_plot |>
+  filter(sample %in% sample_ids)
+```
+
+```{r}
+n_distinct(filtered_lihc_tcga$sample)
+n_distinct(sample_ids)
+```
+
+```{r}
+filtered_lihc_tcga |> 
+  count(sample, sort = T)
+```
+
+Some visualization as a sanity check
+
+```{r}
+filtered_lihc_tcga |>
+  select(HNF1A, sample) |>
+  ggplot(aes(x = '', y = HNF1A)) + 
+  geom_boxplot() +
+  geom_jitter()
+```
+
+Export
+
+```{r}
+write.csv(filtered_lihc_tcga, file = 'TCGA_LIHC_plot.csv', quote = F, sep = '')
+```
